@@ -135,12 +135,7 @@ def checkAlarmDslam(dslam_packet):
 				elif index == 1:
 					pass
 					alarm["stop"].update(groupBy(s_dslam_packet[index], key))
-	"""				
-	for k,v in alarm.iteritems():
-		for k2,v2 in v.iteritems():
-			print str(k2)+"=>"+str(v2)
-			print
-	"""
+
 	return alarm
 
 def processLog():
@@ -161,7 +156,7 @@ def processLog():
 		elif packet[2] == "olt":
 			olt_packet.append(packet)
 
-	processDB(checkAlarmOlt(olt_packet), checkAlarmDslam(dslam_packet))
+	#processDB(checkAlarmOlt(olt_packet), checkAlarmDslam(dslam_packet))
 
 
 def readLogRadius():

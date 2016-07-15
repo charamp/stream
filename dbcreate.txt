@@ -1,0 +1,20 @@
+CREATE TABLE Alarm
+(
+alarm_id int NOT NULL,
+position varchar(255),
+service_type varchar(255),
+time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+result varchar(255),
+PRIMARY KEY (alarm_id)
+)
+
+
+CREATE TABLE Alarm_Cust
+(
+id int NOT NULL,
+cust_id varchar(255) NOT NULL,
+alarm_id int NOT NULL,
+time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+PRIMARY KEY (id),
+FOREIGN KEY (alarm_id) REFERENCES Alarm(alarm_id)
+)
