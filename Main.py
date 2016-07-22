@@ -13,7 +13,7 @@ def resetBuffer():
 	buffers = ""
 
 def checkTimeDifference(packets):
-	min_time = 10
+	min_time = 5
 	for i in xrange(len(packets)-1):
 		for j in xrange(i,len(packets)):
 			if packets[i][1] == packets[j][1]: continue
@@ -57,7 +57,7 @@ def groupBy(all_packet, list_of_key):
 
 def checkAlarmOlt(olt_packet):
 	s_olt_packet = [[],[]]
-	alarm = {'start':{}, 'stop':{}}
+	alarm = {'start': defaultdict(lambda: [], {}), 'stop': defaultdict(lambda: [], {})}
 
 	for packet in olt_packet:
 		if packet[8] == "Start":
@@ -67,14 +67,16 @@ def checkAlarmOlt(olt_packet):
 
 	for index in xrange(len(s_olt_packet)):
 
+		if index == 0:
+			for packet in s_olt_packet[index]:
+				alarm["start"][packet[3]].append(packet)
+				continue
+
 		key = []
 		for packet in s_olt_packet[index]:
 			if list_splitter[packet[1]][0] == "": continue
 			k = packet[3]+" "+packet[4]+" "+packet[5]+" "+packet[6]+" "+list_splitter[packet[1]][0]+" "+list_splitter[packet[1]][1]
-			#if packet[3] == "OX_NOSIM_ZZ_01HW": print k
-			#print k
 			if not k in key:
-				#if packet[3] == "OX_NOSIM_ZZ_01HW": print k
 				key.append(k)
 		for i in xrange(5,0,-1):
 			# 1 port = 1 splitter L1
@@ -112,10 +114,7 @@ def checkAlarmOlt(olt_packet):
 
 def checkAlarmDslam(dslam_packet):
 	s_dslam_packet = [[],[]]
-	alarm = {'start':{}, 'stop':{}}
-
-	for x in dslam_packet:
-		print x
+	alarm = {'start': defaultdict(lambda: [], {}), 'stop': defaultdict(lambda: [], {})}
 
 	for packet in dslam_packet:
 		if packet[8] == "Start":
@@ -124,6 +123,11 @@ def checkAlarmDslam(dslam_packet):
 			s_dslam_packet[1].append(packet)
 
 	for index in xrange(len(s_dslam_packet)):
+
+		if index == 0:
+			for packet in s_dslam_packet[index]:
+				alarm["start"][packet[3]].append(packet)
+				continue
 
 		key = []
 		for packet in s_dslam_packet[index]:
@@ -186,9 +190,9 @@ def processLog(packet_all):
 			print str(k2)+"==>"+str(v2)
 			print 
 	"""
-	checkAlarmDslam(dslam_packet)
+	#checkAlarmDslam(dslam_packet)
 	
-	#processDB(checkAlarmOlt(olt_packet), checkAlarmDslam(dslam_packet))
+	processDB(checkAlarmOlt(olt_packet), checkAlarmDslam(dslam_packet))
 
 
 def readLogRadius():
@@ -213,7 +217,7 @@ def readLogRadius():
 				if checkTimeNow():
 					isNewLog = True
 				print "wait"
-				time.sleep(5)
+				time.sleep(7)
 
 """
 def readLogSplitter():

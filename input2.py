@@ -36,12 +36,11 @@ def logInputReadjustment(data):
 		column = line.split(",")
 
 		if column[3][1:-1] == "Stop" or column[3][1:-1] == "Start":
-
-			if len(str(column[21][1:-1])) > 2:
-				if column[22][1:-1] != "2": continue
-			else:
-				if column[21][1:-1] != "2": continue
-
+			if column[3][1:-1] == "Stop":
+				if len(str(column[21][1:-1])) > 2:
+					if column[22][1:-1] != "2": continue
+				else:
+					if column[21][1:-1] != "2": continue
 			match = ""
 			for character in prefix:
 				m = re.search(r''+character+'\w*_\w*_\w*_\w*\s.*:', line)
