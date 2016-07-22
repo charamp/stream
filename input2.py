@@ -1,4 +1,5 @@
 import re
+from collections import defaultdict
 import time, os
 import datetime
 
@@ -6,6 +7,13 @@ buffers = ""
 prefix = ['O', 'D']
 current_log_name = ""
 isNewLog = True
+
+def convertStringToDateTime(dt):
+	date,time = dt.split(" ")
+	mo,d,y = date.split("/")
+	h,mi,s = time.split(":")
+
+	return datetime.datetime(int(y), int(mo), int(d), int(h), int(mi), int(s), 0)
 
 def checkTimeNow():
 	now = datetime.datetime.now()
@@ -26,7 +34,14 @@ def logInputReadjustment(data):
 	for line in raw_log:
 		if line == "": continue
 		column = line.split(",")
+
 		if column[3][1:-1] == "Stop" or column[3][1:-1] == "Start":
+
+			if len(str(column[21][1:-1])) > 2:
+				if column[22][1:-1] != "2": continue
+			else:
+				if column[21][1:-1] != "2": continue
+
 			match = ""
 			for character in prefix:
 				m = re.search(r''+character+'\w*_\w*_\w*_\w*\s.*:', line)
@@ -36,7 +51,7 @@ def logInputReadjustment(data):
 			position = match.split()
 			if len(column[6][1:-1]) > 10: continue
 
-			time = column[0][1:-1]+" "+column[1][1:-1]
+			time = convertStringToDateTime(column[0][1:-1]+" "+column[1][1:-1])
 			cust_id = column[6][1:-1]
 			service_type = "dslam" if position[0][0] == "D" else "olt"
 			node = position[0]
@@ -46,14 +61,35 @@ def logInputReadjustment(data):
 			status = 0
 			if packet_type == "Stop": status = 2
 	
-			result.append([str(time),str(cust_id),str(service_type),str(node),str(rack),str(card),str(port),str(onu_id),str(packet_type),str(status)])
+			result.append([time,str(cust_id),str(service_type),str(node),str(rack),str(card),str(port),str(onu_id),str(packet_type),str(status)])
 
 	return result
 
-def processLog(data):
-	for x in data:
-		print x
+def readLogSplitter():
+	splitter_list = {}
+	splitter_list = defaultdict(lambda: ["", ""], splitter_list)
+	f = open('OLT_SPLITTER_DETAIL_DATA_TABLE.csv', 'r')
+	raw_splitter = f.read().split("\n")
+	for line in raw_splitter:
+		if line == "": continue
+		column = line.split(",")
+		match = ""
+		m = re.search(r'P[0-9][0-9]_SP.*"', column[1])
+		if m != None:
+			match = m.group()[0:-1]
+		if match == "": continue
+		unit_name_splitter = match.split("_")
+		splitter_list[column[3][1:-1]][0] = unit_name_splitter[0][1:len(unit_name_splitter[0])]
+		splitter_list[column[3][1:-1]][1] = unit_name_splitter[2]
+	return splitter_list
 
+#print readLogSplitter()["8800093698"]
+"""
+for k,v in readLogSplitter().iteritems():
+	if len(v[2]) != 1:
+		print str(k)+"=>"+str(v)
+"""
+"""
 def readLogRadius():
 
 	global buffers
@@ -80,7 +116,7 @@ def readLogRadius():
 				time.sleep(5)
 
 readLogRadius()
-
+"""
 
 
 """
